@@ -2,66 +2,195 @@
 #include <stdlib.h>
 #include <windows.h>
 
+#define CHAR_SIZE 15
+#define SIZE 10
+
 int main()
 {
-	SetConsoleTitle("Vote Manager for Sports-v0.1");
+	SetConsoleTitle("Vote Manager-v0.7");
 	system("color 04");
 	
-	char letter;
-	int athletics = 0, swimming = 0, football = 0, badminton = 0;
+	FILE *fptr;
+	char txt, filename[100];
+	
+	int option;
+    char cat_name[CHAR_SIZE];
+    char categories[SIZE][CHAR_SIZE];
+    int cat_num;
+    int i, j;
+    int cat;
+    int votes[SIZE] = {0};
+    int vote_num = 0;
+    int small, large, pos_small, pos_large;
+	
+	printf(" ============================================================");
+    printf("\n ||                                                        ||");
+    printf("\n ||                     VOTE MANAGER                       ||");
+    printf("\n ||                   ver. 0.7  by pRx                     ||");
+    printf("\n ||                                                        ||");
+    printf("\n ============================================================");
+    printf("\n\n");
 	
 	do
 	{
-		printf("--------------------|Vote Manager made by pRx|--------------------\n\n");
-		printf("--|Type in the letter chosen or |Q| to finish or |OP| to options[BETA]:\n\n");
-		printf("-|1 [A]: Athketics\n");
-		printf("-|2 [S]: Swimming\n");
-		printf("-|3 [F]: Football\n");
-		printf("-|4 [B]: Badminton\n\n");
-		printf("--|Enter the character you want to vote for (A, a): ");
+		printf(" ********** MAIN MENU **********");
+        printf("\n\n [1] Enter categories");
+        printf("\n [2] Enter votes");
+        printf("\n [3] Show results");
+        printf("\n [4] Display statistics");
+        printf("\n [5] Export the data");
+        printf("\n [6] Exit");
 		
-		scanf(" %c", &letter);
-		printf("\n");
-		system("cls");
-		
-		if(letter == 'A' || letter == 'a')
-			athletics = athletics + 1;
-		
-		else if(letter == 'S' || letter == 's')
-			swimming = swimming + 1;
-		
-		else if(letter == 'F' || letter == 'f')
-			football = football + 1;
-		
-		else if(letter == 'B' || letter == 'b')
-			badminton = badminton + 1;
-		
-	} while(letter != 'Q' && letter != 'q');
+		printf("\n\n Enter your choice: ");
+        scanf("%d", &option);
+        system("cls");
+        
+        switch(option)
+        {
+            case 1:
+                printf(" Enter category name: ");
+                scanf("%s", cat_name);
+                
+                printf("\n Enter number of categories: ");
+                scanf("%d", &cat_num);
+                
+                printf("\n");
+                
+                for(i = 0; i < cat_num; i++)
+                {
+                    printf(" Enter category %d: ", i + 1);
+                    scanf("%s", categories[i]);
+                }
+                
+                system("cls");
+                
+                break;
+                
+            case 2:
+                do
+                {
+                    vote_num++;
+                    printf(" VOTE: %d", vote_num);
+                    printf("\n\n What is your favorite %s?\n", cat_name);
+                    
+                    for(i = 0; i < cat_num; i++)
+                    {
+                        printf("\n [%d] %s", i + 1, categories[i]);
+                    }
+                    printf("\n [%d] Finish", cat_num + 1);
+                    
+                    printf("\n\n Enter your choice: ");
+                    scanf("%d", &cat);
+                    votes[cat - 1]++;
+                    system("cls");
+                } while(cat != (cat_num + 1));
+                
+                vote_num--;
+                
+                break;
+                
+            case 3:
+                printf(" ****** Voting Results ******\n");
+                printf("\n %15s \t Votes \t Histogram\n\n", cat_name);
+                
+                for(i = 0; i < cat_num; i++)
+                {
+                    printf(" %15s \t %d \t ", categories[i], votes[i]);
+                    
+                    for(j = 1; j <= votes[i]; j++)
+                        printf("*");
+                    
+                    printf("\n");
+                }
+                
+                printf("\n");
+                
+                break;
+                
+            case 4:
+                small = votes[0];
+                pos_small = 0;
+                
+                for(i = 1; i < cat_num; i++)
+                {
+                    if(votes[i] < small)
+                    {
+                        small = votes[i];
+                        pos_small = i;
+                    }
+                }
+                
+                large = votes[0];
+                pos_large = 0;
+                
+                for(i = 1; i < cat_num; i++)
+                {
+                    if(votes[i] > large)
+                    {
+                        large = votes[i];
+                        pos_large = i;
+                    }
+                }
+                
+                printf(" Number of votes: %d", vote_num);
+                printf("\n The most popular %s is: %s", cat_name, categories[pos_large]);
+                printf("\n The least popular %s is: %s", cat_name, categories[pos_small]);
+                printf("\n\n");
+                
+                break;
+                
+            case 5:
+            	printf("--|NOTE| It will create the file in the folder where the program runs and set its name to (you will determine).\n\n-Do you want this data to be output as a file? -|Y|: YES |N|: NO(menu)-: ");
+				scanf(" %c", &txt);
+				
+				if(txt == 'Y' || txt == 'y')
+				{
+					printf("\nEnter the filename to open (add .txt after name): ");
+    				scanf("%s", filename);
+					
+					fptr = fopen(filename, "w");
+					
+					if (fptr == NULL)
+				    {
+				        printf("Could not open file");// add controller
+				    }
+				    else
+					{
+						fprintf(fptr, " ****** Voting Results ******\n\n %15s \t Votes \t Histogram\n\n", cat_name);
+						
+						for(i = 0; i < cat_num; i++)
+		                {
+		                    fprintf(fptr, " %15s \t %d \t ", categories[i], votes[i]);
+		                    
+		                    for(j = 1; j <= votes[i]; j++)
+		                        fprintf(fptr, "*");
+		                    
+		                    fprintf(fptr, "\n");
+		                }
+		                
+		                fprintf(fptr, "\n--------------------------------------------------\n");
+		                fprintf(fptr, "\n Number of votes: %d", vote_num);
+		                fprintf(fptr, "\n The most popular %s is: %s", cat_name, categories[pos_large]);
+		                fprintf(fptr, "\n The least popular %s is: %s", cat_name, categories[pos_small]);
+		                
+		                fclose(fptr);
+						
+				        printf("\nThe file is created Successfully.\n\n");
+				    }
+				}
+				else if(txt == 'N' || txt == 'n')
+				{
+					break;
+				}
+                
+            case 6:
+                break;
+                
+            default:
+                printf(" ERROR: Invalid choice!\n");
+        }
+        
+	} while(option != 6);
 	
-	printf("\n-Athletics scored %d votes.\n", athletics);
-	printf("-Swimming scored %d votes.\n", swimming);
-	printf("-Football scored %d votes.\n", football);
-	printf("-Badminton scored %d votes.\n\n", badminton);
-	
-	createFile(athletics, swimming, football, badminton);
-}
-
-void createFile(int x, int y, int z, int t)
-{
-	char txt;
-	
-	printf("--|NOTE| It will create the file in the folder where the program runs and set its name to (vote-manager.txt).\n\n-Do you want this data to be output as a file? -|Y|: YES |N|: NO(quit)-: ");
-	scanf(" %c", &txt);
-	
-	FILE *fptr;
-	
-	if(txt == 'Y' || txt == 'y')
-	{
-		fptr = fopen("vote-manager.txt", "w");
-		fprintf(fptr, "Athletics: %d\nSwimming: %d\nFootball: %d\nBadminton: %d", x, y, z, t);
-	}
-	else if(txt == 'N' || txt == 'n')
-	{
-		exit(0);
-	}
+	return 0;
 }
